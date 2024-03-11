@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/g2o_hierarchical_application.dir/g2o_hierarchical.o  -o g2o_hierarchical   -L/home/bgs/3DSLAM22/3DSLAMv2.0/g2o/g2o/apps/g2o_viewer/g2o_hierarchical  -L/home/bgs/3DSLAM22/3DSLAMv2.0/g2o/g2o/apps/g2o_viewer/g2o_cli  libhierarchical.a ../g2o_cli/libcli.a -ltypes_slam3d -lcore -ldl 

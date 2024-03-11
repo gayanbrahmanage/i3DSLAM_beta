@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/g2o_cli_application.dir/g2o.o  -o g2o   -L/home/bgs/3DSLAM22/3DSLAMv2.0/g2o/g2o/apps/g2o_viewer/g2o_cli  libcli.a -lcore -ldl 
