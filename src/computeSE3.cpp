@@ -30,6 +30,7 @@ void computeSE3(message* msg,
                                             std::ref(m),
                                             std::ref(inlier_matches),
                                             std::ref(tf),
+                                            msg,
                                             std::ref(param));
 
         thread_index++;
@@ -58,11 +59,12 @@ void computeSE3(message* msg,
                      m,
                      Rtf4d,
                      matches_far,
+                     msg,
                      param);
 
   inlier_matches.merge(matches_far.read());
 
-  ExMz->estimate(node_id,graph_nodes,inlier_matches,testRtf4d,param);
+  //ExMz->estimate(node_id,graph_nodes,inlier_matches,Rtf4d,param);
 
   Eigen::Matrix4d Rpose_nt=graph_nodes[ref_node_id]->pose.read().inverse() * graph_nodes[node_id-1]->pose.read();
   Eigen::Matrix4d tf4d=Rpose_nt.inverse()*Rtf4d;
@@ -83,6 +85,7 @@ void ransac(int node_id,
             SLAM_Match_Vector& m,
             SLAM_Vector<match>& inlier_matches,
             SLAM_variable<Eigen::Matrix4d>& tf,
+            message* msg,
             parameters& param){
 
   SE3 SE3TF;
@@ -97,6 +100,7 @@ void ransac(int node_id,
                        m,
                        tf_ransac,
                        matches,
+                       msg,
                        param);
 
   // std::cout<<"RANSAC match "<<matches.size()<<" "<<std::endl;
@@ -155,72 +159,13 @@ Eigen::Matrix4d computeTF(std::map<int, Node*>& graph_nodes,
 
   return SE3TF.compute();
 
-/*
-  unsigned int no_of_samples_ = 0;
-  float accumulated_weight_ = 0;
-  Eigen::Vector3d mean1_ = Eigen::Vector3d::Identity ();
-  Eigen::Vector3d mean2_ = Eigen::Vector3d::Identity ();
-  Eigen::Matrix3d covariance_ = Eigen::Matrix3d::Identity ();
-
-  double weight = 1.0;
-  //int size=sample.size();
-
-  for(int i=0;i<size;i++){
-
-      match m=sample[i];
-
-      Eigen::Vector4d point4D=graph_nodes[m.SnodeID]->kpts1.read_point4D(m.SkptID);
-      Eigen::Vector4d corresponding_point4D=graph_nodes[m.TnodeID]->kpts1.read_Rpoint4D(m.TkptID);
-
-      Eigen::Vector3d point=point4D.head(3);
-
-      Eigen::Vector3d corresponding_point=corresponding_point4D.head(3);
-
-    if(point4D(2)>1){
-      weight=1.0f/point4D(2);
-    }else{
-      weight = 1.0;
-    }
-
-    ++no_of_samples_;
-    accumulated_weight_ += weight;
-    double alpha = weight/accumulated_weight_;
-
-    Eigen::Vector3d diff1 = point - mean1_;
-    Eigen::Vector3d diff2 = corresponding_point - mean2_;
-
-    covariance_ = (1.0f-alpha)*(covariance_ + alpha * (diff2 * diff1.transpose()));
-
-    mean1_ += alpha*(diff1);
-    mean2_ += alpha*(diff2);
-
-  }
-
-  Eigen::JacobiSVD<Eigen::Matrix<double, 3, 3> > svd (covariance_, Eigen::ComputeFullU | Eigen::ComputeFullV);
-  const Eigen::Matrix<double, 3, 3>& u = svd.matrixU(),
-                                   & v = svd.matrixV();
-  Eigen::Matrix<double, 3, 3> s;
-  s.setIdentity();
-  if (u.determinant()*v.determinant() < 0.0f)
-    s(2,2) = -1.0f;
-
-  Eigen::Matrix<double, 3, 3> r = u * s * v.transpose();
-  Eigen::Vector3d t = mean2_ - r*mean1_;
-
-  Eigen::Affine3d ret;
-  ret(0,0)=r(0,0); ret(0,1)=r(0,1); ret(0,2)=r(0,2); ret(0,3)=t(0);
-  ret(1,0)=r(1,0); ret(1,1)=r(1,1); ret(1,2)=r(1,2); ret(1,3)=t(1);
-  ret(2,0)=r(2,0); ret(2,1)=r(2,1); ret(2,2)=r(2,2); ret(2,3)=t(2);
-  ret(3,0)=0.0f;   ret(3,1)=0.0f;   ret(3,2)=0.0f;   ret(3,3)=1.0f;
-
-  return ret.matrix();
-  */
 }
 
 void select_matches_close(std::map<int, Node*>& graph_nodes,
                           SLAM_Match_Vector& m,
                           Eigen::Matrix4d &Rtf,
                           std::vector<match>& matches,
+                          message* msg,
                           parameters& param){
 
   int n=0;
@@ -241,8 +186,8 @@ void select_matches_close(std::map<int, Node*>& graph_nodes,
       //std::cout<<m.Rpose_nt<<std::endl<<std::endl<<std::endl;
       Eigen::Matrix4d tfinv=tf.inverse();
 
-      double error1=error_pix(kps,kpt,tf,param);
-      double error2=error_pix(kpt,kps,tfinv,param);
+      double error1=error_pix(kps,kpt,tf,msg,param);
+      double error2=error_pix(kpt,kps,tfinv,msg,param);
 
       if(error1 <squaredMaxInlierDistInM && error2 <squaredMaxInlierDistInM){
         matches.push_back(m);
@@ -256,6 +201,7 @@ void select_matches_far(std::map<int, Node*>& graph_nodes,
                         SLAM_Match_Vector& m,
                         Eigen::Matrix4d &Rtf,
                         SLAM_Vector<match>& matches,
+                        message *msg,
                         parameters& param){
 
   int n=0;
@@ -274,8 +220,8 @@ void select_matches_far(std::map<int, Node*>& graph_nodes,
       Eigen::Matrix4d tf= m.Rpose_nt.inverse()*Rtf;
       Eigen::Matrix4d tfinv=tf.inverse();
 
-      double error1=error_pix(kps,kpt,tf,param);
-      double error2=error_pix(kpt,kps,tfinv,param);
+      double error1=error_pix(kps,kpt,tf,msg,param);
+      double error2=error_pix(kpt,kps,tfinv,msg,param);
 
       if(error1 <squaredMaxInlierDistInM && error2 <squaredMaxInlierDistInM){
         matches.push_back(m);
@@ -288,15 +234,16 @@ void select_matches_far(std::map<int, Node*>& graph_nodes,
 double error_pix(keypoint& kpt_source,
                  keypoint& kpt_target,
                  Eigen::Matrix4d& tf,
+                 message *msg,
                  parameters& param){
 
 
   Eigen::Vector4d pt_3D_target_hat=tf*kpt_source.point4D;
 
   double invZ=1.0/pt_3D_target_hat(2);
-  double xe = param.cx + param.fx * pt_3D_target_hat(0) * invZ;
-  double xe2 = param.cx + param.fx * (pt_3D_target_hat(0)-param.base_line/1000.0f )* invZ;
-  double ye = param.cy + param.fy * pt_3D_target_hat(1) * invZ;
+  double xe = msg->cx + msg->fx * pt_3D_target_hat(0) * invZ;
+  double xe2 = msg->cx + msg->fx * (pt_3D_target_hat(0)-msg->b )* invZ;
+  double ye = msg->cy + msg->fy * pt_3D_target_hat(1) * invZ;
 
 
   double distX = kpt_target.LKeyPoint.pt.x-xe;

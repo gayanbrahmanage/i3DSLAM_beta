@@ -16,6 +16,7 @@ void get3Dpoint(int index,
                 std::vector<std::vector<int>>& row_kpts,
                 std::vector<std::vector<int>>& row_kpts2,
                 const cv::Mat& feature_grid_map2,
+                message* msg,
                 parameters& param);
 
 void get3D( SLAM_KPT_Vector& kpts1,
@@ -23,6 +24,7 @@ void get3D( SLAM_KPT_Vector& kpts1,
             std::vector<std::vector<int>>& row_kpts,
             std::vector<std::vector<int>>& row_kpts2,
             const cv::Mat& feature_grid_map2,
+            message* msg,
             parameters& param);
 
 

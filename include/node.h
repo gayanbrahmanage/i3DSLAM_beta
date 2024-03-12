@@ -15,6 +15,7 @@ class Node{
     parameters param;
     SLAM_variable<int> id;
     SLAM_variable<int> vertex_id;
+    int MapPointID=-1;
 
     SLAM_variable<int> frame_number;
     SLAM_variable<bool> KF;

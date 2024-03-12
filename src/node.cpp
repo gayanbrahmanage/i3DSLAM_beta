@@ -15,6 +15,9 @@ void Node::init(message* msg){
   frame_number.write(msg->frame_number.read());
   time_stamp.write(msg->time_stamp.read());
 
+  msg->MapPointID++;
+  MapPointID=msg->MapPointID;
+
   int width=msg->image_w.read();
   int height=msg->image_h.read();
 
@@ -34,9 +37,9 @@ void Node::init(message* msg){
   t.join();
 
 
-  //get3D(kpts1,kpts2,row_kpts1,row_kpts2,feature_grid_map2,param);
+  //get3D(kpts1,kpts2,row_kpts1,row_kpts2,feature_grid_map2,msg,param);
 
-  getSP3D(kpts1,kpts2,row_kpts1,row_kpts2,feature_grid_map2,msg->image3,param);
+  getSP3D(kpts1,kpts2,row_kpts1,row_kpts2,feature_grid_map2,msg->image3,msg,param);
 
   // initialization
   pose.write(Eigen::Matrix4d::Identity());

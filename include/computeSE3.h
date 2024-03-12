@@ -72,11 +72,13 @@ void computeSE3(message* msg,
 
 
 //
-void ransac(int node_id,
+void ransac(
+            int node_id,
             std::map<int, Node*>& graph_nodes,
             SLAM_Match_Vector& m,
             SLAM_Vector<match>& inlier_matches,
             SLAM_variable<Eigen::Matrix4d>& tf,
+            message *msg,
             parameters& param);
 
 std::vector<match> init_sample(SLAM_Match_Vector& m,parameters& param);
@@ -90,6 +92,7 @@ void select_matches_close(std::map<int, Node*>& graph_nodes,
                           SLAM_Match_Vector& m,
                           Eigen::Matrix4d &tf,
                           std::vector<match>& matches,
+                          message *msg,
                           parameters& param);
 
 //
@@ -97,10 +100,12 @@ void select_matches_far(std::map<int, Node*>& graph_nodes,
                         SLAM_Match_Vector& m,
                         Eigen::Matrix4d &tf,
                         SLAM_Vector<match>& matches,
+                        message *msg,
                         parameters& param);
 
 double error_pix(keypoint& kpt_source,
                  keypoint& kpt_target,
                  Eigen::Matrix4d& tf,
+                 message *msg,
                  parameters& param);
 #endif

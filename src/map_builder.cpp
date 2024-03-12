@@ -27,7 +27,7 @@ void MapBuilder::run(message* msg){
 
         int id2=node_id-1;
 
-        BA.optimize(graph_nodes,node_id,node_id);
+        BA.optimize(graph_nodes,node_id,node_id, msg);
 
       }else{
         n_blocks=msg->n_blocks.read();
@@ -74,25 +74,25 @@ void MapBuilder::align_source_node(message* msg, Node* source_node){
 
 
 
-  search_obzs_over_window(source_node->id.read(),ntID1,ntID2);
+  search_obzs_over_window(source_node->id.read(),ntID1,ntID2,msg);
 
   computeSE3(msg,ExMz, node_id,ntID1,graph_nodes,Matches,param);
 
 }
 
-void MapBuilder::search_obzs_over_window(int nsID,int ntID1, int ntID2){
+void MapBuilder::search_obzs_over_window(int nsID,int ntID1, int ntID2, message* msg){
 
 
 
   for(int i=ntID1; i<=ntID2; i++){
 
     std::cout<<"Nref "<<ntID1 <<" Nt "<<i <<" Ns "<<nsID<<std::endl;
-    search_obzs_frame(nsID,i,ntID1);
+    search_obzs_frame(nsID,i,ntID1,msg);
 
   }
 }
 
-void MapBuilder::search_obzs_frame(int nsID,int ntID,int refID){
+void MapBuilder::search_obzs_frame(int nsID,int ntID,int refID, message* msg){
 
   Node* nr=graph_nodes[refID];
   Node* nt=graph_nodes[ntID];
@@ -113,7 +113,7 @@ void MapBuilder::search_obzs_frame(int nsID,int ntID,int refID){
       keypoint kpt=nt->kpts1.read_element(nt->kpts_MPs.read_element(i));
 
       threads[thread_index] = std::thread(&MapBuilder::search_obz,this,ns,nt,
-                                          std::ref(kpt),kpt.descriptor,feature_grid_map1,std::ref(ref_pose));
+                                          std::ref(kpt),kpt.descriptor,feature_grid_map1,std::ref(ref_pose),msg);
       thread_index++;
     }
 
@@ -131,7 +131,7 @@ void MapBuilder::search_obzs_frame(int nsID,int ntID,int refID){
 }
 
 void MapBuilder::search_obz(Node* ns, Node* nt, keypoint& kpt, cv::Mat descriptor,
-                            cv::Mat feature_grid_map1, Eigen::Matrix4d& ref_pose){
+                            cv::Mat feature_grid_map1, Eigen::Matrix4d& ref_pose, message* msg){
 
   int xp,yp;
   int min_dist=param.ORB_HAMMING_DISTANCE_TH+1;
@@ -151,7 +151,7 @@ void MapBuilder::search_obz(Node* ns, Node* nt, keypoint& kpt, cv::Mat descripto
   Eigen::Vector4d Rpoint4D=Rpose_nt*kpt.point4D;
   nt->kpts1.write_Rpoint4D(kpt.id,Rpoint4D);
 
-  if(project_MapPoint(xp,yp,point4D,rpose_ns.inverse(), param)){
+  if(project_MapPoint(xp,yp,point4D,rpose_ns.inverse(), msg, param)){
 
       int xMin=xp-param.search_radius;
       if(xMin<0)xMin=0;

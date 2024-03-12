@@ -24,6 +24,7 @@ struct keypoint{
   cv::Mat descriptor;
   int covilibility_index=0;
   Eigen::Matrix3d kptinfoMatrix=Eigen::Matrix3d::Identity();
+
 };
 
 struct match{

@@ -25,6 +25,7 @@ class kitti{
     void read_time_stamp();
     void read_gt(message* msg);
     void run(message* msg);
+    void read_calib(message* msg);
 };
 
 #endif

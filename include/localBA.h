@@ -36,13 +36,13 @@ private:
   const float deltaMono = sqrt(5.991);
   const float deltaStereo = sqrt(7.815);
   const float thHuber3D = sqrt(7.815);
-  
+
 public:
   localBA();
   ~localBA();
 
-  void run(std::map<int, Node*>& graph_nodes, int& id1, int& id2);
-  void optimize(std::map<int, Node*>& graph_nodes, int& id1, int& id2);
+  void run(std::map<int, Node*>& graph_nodes, int& id1, int& id2, message* msg);
+  void optimize(std::map<int, Node*>& graph_nodes, int& id1, int& id2, message* msg);
   void reset();
 }
 ;

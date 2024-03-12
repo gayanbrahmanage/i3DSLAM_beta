@@ -51,6 +51,8 @@ class message{
     EigenMat4dMap poseGT;
     EigenMat4dMap pose;
 
+    float fx, fy, cx, cy, bf, b;
+
     message();
     ~message();
 

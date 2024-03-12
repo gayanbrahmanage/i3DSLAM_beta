@@ -104,14 +104,14 @@ class SLAM_KPT_Vector{
       vec[index].assigned=e;
     }
 
-    bool read_MapPointID(int index){
+    int read_MapPointID(int index){
       std::lock_guard<std::mutex> lock(mtx);
       return vec[index].MapPointID;
     }
 
-    bool write_MapPointID(int index,int MapPointID){
+    void write_MapPointID(int index,int MapPointID){
       std::lock_guard<std::mutex> lock(mtx);
-      return vec[index].MapPointID=MapPointID;
+      vec[index].MapPointID=MapPointID;
     }
 
     int read_xp(int index){
@@ -277,7 +277,7 @@ template <class T> class SLAM_Vector{
     std::mutex mtx;
 
   public:
-    
+
     std::vector<T> vec;
 
     SLAM_Vector(){

@@ -26,6 +26,7 @@ void get3Dpoint(int index,
                 std::vector<std::vector<int>>& row_kpts2,
                 const cv::Mat& feature_grid_map2,
                 const cv::Mat& depth_image,
+                message* msg,
                 parameters& param){
 
   keypoint kp=kpts1.read_element(index);
@@ -70,7 +71,7 @@ void get3Dpoint(int index,
     float disparity=pt_left.x-pt_right.x;
 
     if(disparity>0){
-      //d=(param.fx*param.base_line)/(disparity*1000.0f);
+      //d=(msg->bf)/(disparity*1000.0f);
       d=get_P3D(depth_image,pt_left.x,pt_left.y);
       //std::cout<<d<<" "<<dp<<std::endl;
 
@@ -79,8 +80,8 @@ void get3Dpoint(int index,
     }
 
     float  Zw = d;
-    float  Xw =(pt_left.x - param.cx) * Zw / param.fx;
-    float  Yw =(pt_left.y - param.cy) * Zw / param.fy;
+    float  Xw =(pt_left.x - msg->cx) * Zw / msg->fx;
+    float  Yw =(pt_left.y - msg->cy) * Zw / msg->fy;
 
     kp.point4D=Eigen::Vector4d(Xw,Yw,Zw,1);
     kp.RKeyPoint=kpts2.read_element(matched_id).LKeyPoint;
@@ -101,6 +102,7 @@ void getSP3D(SLAM_KPT_Vector& kpts1,
             std::vector<std::vector<int>>& row_kpts2,
             const cv::Mat& feature_grid_map2,
             const cv::Mat& depth_image,
+            message* msg,
             parameters& param){
   //
   int thread_index=0;
@@ -120,6 +122,7 @@ void getSP3D(SLAM_KPT_Vector& kpts1,
                                           std::ref(row_kpts2),
                                           std::ref(feature_grid_map2),
                                           depth_image,
+                                          msg,
                                           std::ref(param));
 
 

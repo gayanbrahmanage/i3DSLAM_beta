@@ -5,6 +5,8 @@ kitti::kitti(int i,message* msg){
   sq_no=i;
   read_time_stamp();
   read_gt(msg);
+  read_calib(msg);
+
 }
 
 kitti::~kitti(){
@@ -93,6 +95,44 @@ void kitti::read_time_stamp(){
   }else{
     std::cout<<"\033[21;33mWARNING:: \033[0m  "<<" Time file opening FAILD"<<std::endl;
   }
+}
+
+void kitti::read_calib(message* msg){
+
+  std::stringstream calib_file_name;
+  calib_file_name << data_folder <<"kitti"<< sq_no<<"_data/"<<sq_no<<"/calib.txt";
+  std::ifstream calib_file (calib_file_name.str());
+
+  if (calib_file.is_open()){
+    std::string line;
+      while ( getline (calib_file,line)){
+
+        std::stringstream ss(line);
+        std::vector<std::string> str_list;
+
+        while (ss){
+          std::string s;
+          if (!getline( ss, s, ' ' )) break;
+          str_list.push_back( s );
+        }
+
+        if(str_list.size()==13){
+          if(str_list[0]=="P1:"){
+
+            msg->fx=stof(str_list[1]);
+            msg->fy=stof(str_list[6]);
+            msg->cx=stof(str_list[3]);
+            msg->bf=-stof(str_list[4]);
+            msg->cy=stof(str_list[7]);
+            msg->b=msg->bf/msg->fx;
+
+          }
+        }
+      }
+  }
+
+  std::cout<<"Camera Insintrics "<<std::endl<<
+  "fx="<<msg->fx<<" fy="<<msg->fy<<" cx="<<msg->cx<<" cy="<<msg->cy<<" bf="<<msg->bf<<" b="<<msg->b<<std::endl;
 }
 
 void kitti::read_gt(message* msg){
