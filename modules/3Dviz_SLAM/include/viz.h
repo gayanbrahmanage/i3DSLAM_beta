@@ -11,8 +11,11 @@
 #include <math.h>
 #include <iostream>
 #include <vector>
+
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <shader_m.h>
 #include <camera.h>
 #include "viz_parameters.h"

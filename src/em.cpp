@@ -152,8 +152,9 @@ void em::compute_Lambda(int node_id,
 
     denominator+=delta.transpose()*Eni[n]*delta;
     n++;
-    lambda=matches.size()/denominator;
   }
+  
+  lambda=matches.size()/denominator;
 }
 
 void em::solve_v(){

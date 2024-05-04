@@ -23,12 +23,15 @@ class parameters{
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     int n_threads=16;
-    // float fx=707.0912;
-    // float fy=707.0912;
-    // float cx=601.8873;
-    // float cy=183.1104;
-    // float base_line=537.150653;
-    // float bf=base_line*fx/1000.0f;
+    //int gui_width=1460;
+    //int gui_height=920;
+    int i3D_width=1280;
+    int i3D_height=720;
+    int video_width=1280;
+    int video_height=370;
+
+    cv::Scalar gui_b_color=cv::Scalar(16,16,16);
+    cv::Scalar gui_panel_color=cv::Scalar(28,28,28);
 
     int width=1226;
     int height=370;

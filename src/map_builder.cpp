@@ -36,7 +36,7 @@ void MapBuilder::run(message* msg){
 
       node->create_MapPoints(msg);
 
-      show_image(msg,node,Matches);
+      //show_image(msg,node,Matches);
       msg->new_frame_flag.write(false);
 
       Matches.reset();

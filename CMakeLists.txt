@@ -16,24 +16,10 @@ endif()
 set(CMAKE_CXX_FLAGS "${C_CXX_FLAGS_DEFAULT} ${CMAKE_CXX_FLAGS} --std=c++17 ")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
-#sudo apt-get install libglew-dev
-find_package(GLEW REQUIRED)
-include_directories(${GLEW_INCLUDE_DIRS})
-link_libraries(${GLEW_LIBRARIES})
 
 
-#find additional libraries GLFW
+
 find_package(PkgConfig REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
-include_directories(${GLFW_INCLUDE_DIRS} ${GLFW_LIBRARIES})
-#sudo apt-get install freeglut3-dev
-find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
-include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS} )
-
-#3Dviz 
-include_directories( ${PROJECT_SOURCE_DIR}/modules/3Dviz_SLAM/include)
-
 include_directories( ${PROJECT_SOURCE_DIR}/modules/data_loader/include)
 
 
@@ -58,6 +44,7 @@ include_directories( SYSTEM
   	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/imgui
 	${PROJECT_SOURCE_DIR}/test/pbplot_tools
+	${PROJECT_SOURCE_DIR}/modules/gui/include
 
 )
 
@@ -76,6 +63,14 @@ LIST(APPEND G2O_LIBS
 
 #configuration for openCV
 find_package( OpenCV REQUIRED )
+pkg_search_module(GTKMM REQUIRED gtkmm-3.0)
+
+include_directories(SYSTEM
+  ${GTKMM_INCLUDE_DIRS}
+  ${SIGCPP_INCLUDE_DIRS}
+  ${X11_INCLUDE_DIRS})
+  
+link_directories(${GTKMM_LIBRARY_DIRS})
 
 #building main 
 
@@ -84,7 +79,6 @@ add_executable( app
 		
 		src/parameters.cpp
 		src/message.cpp
-		#src/slam_node.cpp
 		src/map_builder.cpp
 		src/node.cpp
 		src/features2D.cpp
@@ -98,11 +92,12 @@ add_executable( app
 		src/P3D.cpp
 		src/stereoP3D.cpp
 
-		modules/3Dviz_SLAM/src/viz.cpp
-		modules/3Dviz_SLAM/src/glad.c 
-		modules/3Dviz_SLAM/src/axes.cpp
-		modules/3Dviz_SLAM/src/pose.cpp	
+	
+		modules/gui/src/gui.cpp
+		modules/gui/src/video_widget.cpp
+		modules/gui/src/i3D.cpp
 		
+	
 		modules/data_loader/src/data_loader.cpp	
 
 		) 
@@ -111,8 +106,7 @@ target_link_libraries(app
 			${G2O_LIBS} 
 			${G2O_LIBRARIES} 
 			${OpenCV_LIBS}
-			${GLFW_STATIC_LIBRARIES} 
-			${OPENGL_LIBRARIES} 
-			${GLUT_LIBRARY})
+			${GTKMM_LIBRARIES}
+			epoxy)
 
 		
