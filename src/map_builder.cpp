@@ -8,7 +8,7 @@ MapBuilder::~MapBuilder(){
 
 }
 
-void MapBuilder::run(message* msg){
+void MapBuilder::run(message* msg, gui* caller){
 
   while(true){
 
@@ -36,7 +36,9 @@ void MapBuilder::run(message* msg){
 
       node->create_MapPoints(msg);
 
-      //show_image(msg,node,Matches);
+      create_output_image(msg,node,Matches);
+      caller->Dispatcher_mapbuilder.emit();
+
       msg->new_frame_flag.write(false);
 
       Matches.reset();
@@ -86,7 +88,7 @@ void MapBuilder::search_obzs_over_window(int nsID,int ntID1, int ntID2, message*
 
   for(int i=ntID1; i<=ntID2; i++){
 
-    std::cout<<"Nref "<<ntID1 <<" Nt "<<i <<" Ns "<<nsID<<std::endl;
+    //std::cout<<"Nref "<<ntID1 <<" Nt "<<i <<" Ns "<<nsID<<std::endl;
     search_obzs_frame(nsID,i,ntID1,msg);
 
   }
@@ -127,7 +129,7 @@ void MapBuilder::search_obzs_frame(int nsID,int ntID,int refID, message* msg){
     n++;
   }
 
-  std::cout<<"Matches/kpts_MPs "<<Matches.size()<<"/"<<nt->kpts_MPs.size()<<std::endl;
+  //std::cout<<"Matches/kpts_MPs "<<Matches.size()<<"/"<<nt->kpts_MPs.size()<<std::endl;
 }
 
 void MapBuilder::search_obz(Node* ns, Node* nt, keypoint& kpt, cv::Mat descriptor,

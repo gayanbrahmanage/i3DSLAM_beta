@@ -8,6 +8,7 @@
 #include "computeSE3.h"
 #include "em.h"
 #include "localBA.h"
+#include "gui.h"
 
 class MapBuilder{
 
@@ -28,7 +29,7 @@ class MapBuilder{
     MapBuilder();
     ~MapBuilder();
 
-    void run(message* msg);
+    void run(message* msg, gui* caller);
     void align_source_node(message* msg,Node* source_node);
     void search_obzs_over_window(int nsID,int ntID1, int ntID2,message* msg);
     void search_obzs_frame(int nsID,int ntID, int refID,message* msg);

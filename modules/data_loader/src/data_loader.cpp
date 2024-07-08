@@ -173,7 +173,7 @@ void kitti::read_gt(message* msg){
       if(i==start_frame_number)pose_init=p;
 
     Eigen::Matrix4d pose=pose_init.inverse()*p;
-    msg->poseGT[i]=pose;
+    //msg->poseGT[i]=pose;
 
     }
   }

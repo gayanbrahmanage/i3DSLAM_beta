@@ -17,7 +17,7 @@ void em::estimate(int node_id,
   lambda=100;
   Eigen::Matrix3d Sigma=Eigen::Matrix3d::Identity()*lambda;
 
-  std::cout<<"  TF "<<std::endl<<Rtf<<std::endl<<std::endl;
+  //std::cout<<"  TF "<<std::endl<<Rtf<<std::endl<<std::endl;
   std::vector<float> vlambda;
 
   for(int i=0; i<iterations; i++){
@@ -153,7 +153,7 @@ void em::compute_Lambda(int node_id,
     denominator+=delta.transpose()*Eni[n]*delta;
     n++;
   }
-  
+
   lambda=matches.size()/denominator;
 }
 

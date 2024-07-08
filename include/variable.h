@@ -381,4 +381,55 @@ template <class T> class SLAM_Map{
     }
 };
 
+#define EigenMat4dMap std::map<int, Eigen::Matrix4d, std::less<int>, Eigen::aligned_allocator<std::pair<const int, Eigen::Matrix4d>>>
+
+class Trajectory{
+
+  private:
+    EigenMat4dMap map;
+    std::mutex mtx;
+
+  public:
+
+    Trajectory(){
+
+    }
+
+    ~Trajectory(){
+
+    }
+
+    int size(){
+      return map.size();
+    }
+
+    void write(const EigenMat4dMap &m){
+
+      std::lock_guard<std::mutex> lock(mtx);
+      map=m;
+    }
+
+    EigenMat4dMap read(){
+      std::lock_guard<std::mutex> lock(mtx);
+      return map;
+    }
+
+
+    Eigen::Matrix4d read_element(int index){
+      std::lock_guard<std::mutex> lock(mtx);
+      return map[index];
+    }
+
+    void write_element(int index, Eigen::Matrix4d& e){
+      std::lock_guard<std::mutex> lock(mtx);
+      map[index]=e;
+    }
+
+    void clear(){
+      std::lock_guard<std::mutex> lock(mtx);
+      map.clear();
+    }
+};
+
+
 #endif

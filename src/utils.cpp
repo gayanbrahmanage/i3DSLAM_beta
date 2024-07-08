@@ -16,6 +16,24 @@ unsigned int time_record::stop(){
   return dt;
 }
 
+void create_output_image(message* msg, Node* node, SLAM_Match_Vector& Matches){
+
+  cv::Mat image=msg->image1.read().clone();
+  msg->output_image.write(image);
+
+  if(msg->draw_kpts.read()){
+
+    draw_kpts(image, node);
+  }
+
+  if(msg->draw_matches.read()){
+    //draw_all_matches(image,node);
+    draw_matches(image, node);
+    draw_all_matches(image,node, Matches);
+  }
+            
+}
+
 
 void show_image(message* msg, Node* node,SLAM_Match_Vector& Matches){
 
@@ -223,7 +241,7 @@ void save_vector_to_txt(std::vector<float> v, std::string name){
   for(int i=0; i<v.size(); i++){
     line<<v[i]<<" ";
   }
-  
+
   std::string line_str=line.str().c_str();
   logfile<<line_str<<std::endl;
   //close log file

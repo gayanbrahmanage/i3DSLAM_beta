@@ -18,7 +18,7 @@ void localBA::run(std::map<int, Node*>& graph_nodes, int& id1, int& id2, message
 
 void localBA::optimize(std::map<int, Node*>& graph_nodes, int& id1, int& id2, message* msg){
 
-  std::cout<<"Optimizing "<<id1<<" "<<id2<<std::endl;
+  //std::cout<<"Optimizing "<<id1<<" "<<id2<<std::endl;
 
   g2o::SparseOptimizer optimizer;// = new g2o::SparseOptimizer();
   std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver;
@@ -30,7 +30,7 @@ void localBA::optimize(std::map<int, Node*>& graph_nodes, int& id1, int& id2, me
 
     Node* node_s=graph_nodes[i];
 
-    std::cout<<node_s->MapPointID<<" Pose "<<std::endl<<node_s->pose.read()<<std::endl;
+    //std::cout<<node_s->MapPointID<<" Pose "<<std::endl<<node_s->pose.read()<<std::endl;
 
     Eigen::Matrix4d tf=node_s->pose.read().inverse();
 
@@ -109,14 +109,14 @@ void localBA::optimize(std::map<int, Node*>& graph_nodes, int& id1, int& id2, me
           e->cy = msg->cy;
 
           optimizer.addEdge(e);
-                    
+
         }
     }
   }
 
   optimizer.initializeOptimization();
   bool flag=optimizer.optimize(param.g2o_iterations_local_BA);
-  std::cout<<"BA Optimizer Success "<< flag<<std::endl;
+  //std::cout<<"BA Optimizer Success "<< flag<<std::endl;
 
   for(int i=id1; i>=id2; --i){
 
@@ -124,8 +124,14 @@ void localBA::optimize(std::map<int, Node*>& graph_nodes, int& id1, int& id2, me
   g2o::SE3Quat estimated_SE3quat = vSE3_recov->estimate();
   Eigen::Matrix4d estimated_4d = estimated_SE3quat.to_homogeneous_matrix().inverse();
 
-  std::cout<< "Optimixed "<<std::endl<< estimated_4d<<std::endl;
+  //std::cout<< "Optimixed "<<std::endl<< estimated_4d<<std::endl;
   graph_nodes[i]->pose.write(estimated_4d);
+  msg->traj.write_element(i,estimated_4d);
+
+  if(i==id1){
+      msg->current_pose.write(estimated_4d);
+    }
+
   }
 
   reset();

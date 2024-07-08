@@ -18,9 +18,18 @@ gui::gui():
     video_image("../modules/gui/extra/camera.png"),
     frame_3D_view("3D-Map"),
     box_3D_view(Gtk::ORIENTATION_VERTICAL),
-
     frame_display_ctrl_window("Display Settings"),
-    boxR(Gtk::ORIENTATION_VERTICAL) //right
+    boxR(Gtk::ORIENTATION_VERTICAL), //right
+    grid_param(),
+    adj_ax( Gtk::Adjustment::create(0.0, 0.0, 360, 0.1, 1.0, 1.0) ),// Value, lower, upper, step_increment, page_increment, page_size:
+    ax_Scale(adj_ax),
+    adj_ay( Gtk::Adjustment::create(0.0, 0.0, 360, 0.1, 1.0, 1.0) ),// Value, lower, upper, step_increment, page_increment, page_size:
+    ay_Scale(adj_ay),
+    adj_az( Gtk::Adjustment::create(0.0, 0.0, 360, 0.1, 1.0, 1.0) ),// Value, lower, upper, step_increment, page_increment, page_size:
+    az_Scale(adj_az),
+    adj_zoom( Gtk::Adjustment::create(300.0, 0.0, 1000, 0.1, 1.0, 1.0) ),// Value, lower, upper, step_increment, page_increment, page_size:
+    zoom_Scale(adj_zoom),
+    reset_view_button("Reset")
     {
         set_title("3D-SLAM v1.0");
         //set_default_size(1260, 820);
@@ -49,21 +58,61 @@ gui::gui():
         boxM.pack_start(frame_3D_view);
         box_3D_view.set_border_width(5);
         frame_3D_view.add(box_3D_view);
-        GLArea3D.set_hexpand(true);
-        GLArea3D.set_size_request(param->i3D_width, param->i3D_height);
-        GLArea3D.set_auto_render(true);
-        box_3D_view.pack_start(GLArea3D);
 
-        GLArea3D.signal_realize().connect(sigc::mem_fun(*this, &gui::GLArea3D_realize));
-        GLArea3D.signal_unrealize().connect(sigc::mem_fun(*this, &gui::GLArea3D_unrealize), false);
-        GLArea3D.signal_render().connect(sigc::mem_fun(*this, &gui::GLArea3D_render), false);
+        GLArea3D = gtk_gl_area_new ();
+        gtk_widget_set_size_request(GLArea3D, param->i3D_width, param->i3D_height); // Set size here
+        box_3D_view.add(*Glib::wrap(GLArea3D));
 
-        //box_3D_view.pack_start(i3D, Gtk::PACK_SHRINK);
+        g_signal_connect(GLArea3D, "realize", G_CALLBACK(realize_cb), this);
+        g_signal_connect(GLArea3D, "render", G_CALLBACK(render_cb), this);
+        g_signal_connect(GLArea3D, "unrealize", G_CALLBACK(unrealize_cb), this);
+
 
         //right frame
         boxMain.pack_start(frame_display_ctrl_window);
         boxR.set_border_width(5);
+        boxR.set_size_request(300, -1);
+        grid_param.set_row_spacing(5);
+        grid_param.set_column_spacing(5);
         frame_display_ctrl_window.add(boxR);
+        boxR.add(grid_param);
+
+        grid_param.attach(*Gtk::make_managed<Gtk::Label>("Roll", 0),0,0,1,1);
+        ax_Scale.set_digits(0);
+        ax_Scale.set_hexpand(true);
+        grid_param.attach(ax_Scale,1,0,1,1);
+        adj_ax->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this, &gui::on_ax_axis_value_change), adj_ax));
+
+        grid_param.attach(*Gtk::make_managed<Gtk::Label>("Pitch", 0),0,1,1,1);
+        ay_Scale.set_digits(0);
+        ay_Scale.set_hexpand(true);
+        grid_param.attach(ay_Scale,1,1,1,1);
+        adj_ay->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this, &gui::on_ay_axis_value_change), adj_ay));
+
+        grid_param.attach(*Gtk::make_managed<Gtk::Label>("Yaw", 0),0,2,1,1);
+        az_Scale.set_digits(0);
+        az_Scale.set_hexpand(true);
+        grid_param.attach(az_Scale,1,2,1,1);
+        adj_az->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this, &gui::on_az_axis_value_change), adj_az));
+
+        grid_param.attach(*Gtk::make_managed<Gtk::Label>("Zoom", 0),0,3,1,1);
+        zoom_Scale.set_digits(0);
+        zoom_Scale.set_hexpand(true);
+        grid_param.attach(zoom_Scale,1,3,1,1);
+        adj_zoom->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this, &gui::on_zoom_axis_value_change), adj_zoom));
+
+        grid_param.attach(separator1, 0,4,4,1);
+
+        grid_param.attach(*Gtk::make_managed<Gtk::Label>("Select View ", 0),1,5,1,1);
+        followcam_togglebtn.set_size_request(100, 30);
+        followcam_togglebtn.set_label("Cam"); // Initial label
+        followcam_togglebtn.signal_clicked().connect(sigc::mem_fun(*this, &gui::on_followCamera_toggle_clicked));
+        grid_param.attach(followcam_togglebtn, 0, 5, 1, 1);
+
+        grid_param.attach(reset_view_button, 0, 6, 1, 1);
+        reset_view_button.signal_clicked().connect(sigc::mem_fun(*this,&gui::on_reset_view_button_clicked) );
+
+        Dispatcher_mapbuilder.connect(sigc::mem_fun(*this, &gui::on_mapbuilder_complete));
 
         show_all_children();
 }

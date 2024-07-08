@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 project(3DSLAM)
 
+# Specify the version of the project
+set(i3DSLAM_VERSION_MAJOR 1)
+set(i3DSLAM_VERSION_MINOR 0)
+set(i3DSLAM_VERSION_PATCH 0)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 include(CheckCXXCompilerFlag)
@@ -69,14 +74,31 @@ include_directories(SYSTEM
   ${GTKMM_INCLUDE_DIRS}
   ${SIGCPP_INCLUDE_DIRS}
   ${X11_INCLUDE_DIRS})
-  
+
 link_directories(${GTKMM_LIBRARY_DIRS})
 
-#building main 
+# Define input and output files
+set(GRESOURCE_XML ${CMAKE_CURRENT_SOURCE_DIR}/modules/gui/shader/gui.gresource.xml)
+set(GENERATED_C ${CMAKE_CURRENT_BINARY_DIR}/resources.c)
+set(GENERATED_H ${CMAKE_CURRENT_BINARY_DIR}/resources.h)
 
-add_executable( app 
+add_custom_command(
+    OUTPUT ${GENERATED_C} ${GENERATED_H}
+    COMMAND glib-compile-resources ${GRESOURCE_XML} --target=${GENERATED_C} --generate-source --sourcedir=${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND touch ${GENERATED_H}  # Touch the header file to ensure it's considered up to date
+    DEPENDS ${GRESOURCE_XML}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+# Add custom target to ensure the resources are compiled before building the main target
+add_custom_target(resources DEPENDS ${GENERATED_C} ${GENERATED_H})
+
+
+#building main
+
+add_executable( i3DSLAM
 		app/app.cpp
-		
+
 		src/parameters.cpp
 		src/message.cpp
 		src/map_builder.cpp
@@ -91,22 +113,114 @@ add_executable( app
 		src/em.cpp
 		src/P3D.cpp
 		src/stereoP3D.cpp
+		src/utils2.cpp
 
-	
+
 		modules/gui/src/gui.cpp
 		modules/gui/src/video_widget.cpp
 		modules/gui/src/i3D.cpp
-		
-	
-		modules/data_loader/src/data_loader.cpp	
+		modules/gui/src/logo.cpp
+		modules/gui/src/gui_dispatcher.cpp
+		modules/gui/src/axis.cpp
+		modules/gui/src/i3D_widget.cpp
+		modules/gui/src/axis.cpp
+		modules/gui/src/grid.cpp
+		modules/gui/src/camerapose.cpp
+		modules/gui/src/trajectory.cpp
+		modules/gui/src/gui_button_click.cpp
 
-		) 
 
-target_link_libraries(app 
-			${G2O_LIBS} 
-			${G2O_LIBRARIES} 
+		modules/data_loader/src/data_loader.cpp
+		${GENERATED_C}
+		)
+
+add_dependencies(i3DSLAM resources)
+
+
+target_link_libraries(i3DSLAM
+			${G2O_LIBS}
+			${G2O_LIBRARIES}
 			${OpenCV_LIBS}
 			${GTKMM_LIBRARIES}
 			epoxy)
 
-		
+
+add_executable( test
+		test/testgl.cpp
+
+		)
+
+target_link_libraries(test
+			${GTKMM_LIBRARIES}
+			epoxy)
+
+add_executable( test2
+		test/testgl2.cpp
+
+		)
+
+target_link_libraries(test2 
+			${GTKMM_LIBRARIES}
+			epoxy)
+			
+install(TARGETS i3DSLAM DESTINATION /usr/local/bin)		
+
+	
+# CPack setup
+
+# Function to scan for source files and exclude them
+function(scan_for_source_files dir)
+    # Get list of all files and directories in the current directory
+    file(GLOB entries ${dir}/*)
+    
+    # Iterate over each entry
+    foreach(entry ${entries})
+        # Check if the entry is a directory
+        if(IS_DIRECTORY ${entry})
+            # Recursively call the function for the directory
+            scan_for_source_files(${entry})
+        else()
+            # Check if the entry is a source file
+            string(REGEX MATCH "\\.(cpp|h)$" is_source_file ${entry})
+            if(is_source_file)
+                # Add source file to the list of files to be excluded
+                list(APPEND CPACK_SOURCE_IGNORE_FILES "${entry}")
+            endif()
+        endif()
+    endforeach()
+endfunction()
+
+# Call the function with the root directory
+scan_for_source_files(${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+
+set(CPACK_PACKAGE_NAME "i3DSLAM")
+set(CPACK_PACKAGE_VERSION_MAJOR ${i3DSLAM_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${i3DSLAM_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${i3DSLAM_VERSION_PATCH})
+set(CPACK_PACKAGE_VERSION "${i3DSLAM_VERSION_MAJOR}.${i3DSLAM_VERSION_MINOR}.${i3DSLAM_VERSION_PATCH}")
+
+set(CPACK_PACKAGE_DESCRIPTION "V-SLAM package by Gayan Brahmanage")
+set(CPACK_PACKAGE_VENDOR "The university of Calgary")
+set(CPACK_PACKAGE_CONTACT "gayansampathefac@gmail.com")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-Linux")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+
+# Specify generator (DEB for Ubuntu)
+set(CPACK_GENERATOR "DEB")
+
+# DEB specific settings
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "gayansampathefac@gmail.com") # required
+
+# Include license, readme, etc.
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+#set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+
+
+# Exclude common files from the package
+set(CPACK_SOURCE_IGNORE_FILES "${CPACK_SOURCE_IGNORE_FILES};/CVS/;/\\.svn/;/\\.bzr/;/\\.hg/;/\\.git/;\\.swp\\$;\\.\\#;/#;/\\.git/;/\\.gitignore;/\\.DS_Store;/\\.idea/;/build/;\\.cpp$;\\.h$")
+
+
+
+# Create the package
+include(CPack)			

@@ -2,6 +2,8 @@
 
 message::message(){
 
+  init();
+
 }
 
 message::~message(){

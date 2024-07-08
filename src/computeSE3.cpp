@@ -76,7 +76,7 @@ void computeSE3(message* msg,
 
   msg->n_matches.write(inlier_matches.size());
 
-  std::cout<<"Matches Selected ["<<inlier_matches.size()<<"+"<<matches_far.size()<<"]/"<<m.n_matches<<std::endl;
+  //std::cout<<"Matches Selected ["<<inlier_matches.size()<<"+"<<matches_far.size()<<"]/"<<m.n_matches<<std::endl;
 
 }
 

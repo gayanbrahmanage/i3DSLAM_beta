@@ -29,4 +29,5 @@ void draw_ProjectedMapPoints(message* msg, Node* node);
 
 void save_vector_to_txt(std::vector<float>, std::string name);
 
+void create_output_image(message* msg, Node* node, SLAM_Match_Vector& Matches);
 #endif

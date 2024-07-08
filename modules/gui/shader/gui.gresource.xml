@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/glarea">
+    <file>modules/gui/shader/glarea-gl.fs.glsl</file>
+    <file>modules/gui/shader/glarea-gl.vs.glsl</file>
+    <file>modules/gui/shader/glarea-gles.fs.glsl</file>
+    <file>modules/gui/shader/glarea-gles.vs.glsl</file>
+  </gresource>
+</gresources>

@@ -23,7 +23,7 @@
 #include "variable.h"
 #include "keypoint.h"
 
-#define EigenMat4dMap std::map<int, Eigen::Matrix4d, std::less<int>, Eigen::aligned_allocator<std::pair<const int, Eigen::Matrix4d>>>
+
 
 class message{
 
@@ -36,6 +36,7 @@ class message{
     SLAM_variable<bool> new_frame_flag;
     SLAM_variable<bool> end_flag;
     SLAM_variable<int> frame_number;
+    SLAM_variable<cv::Mat> output_image;
     SLAM_variable<cv::Mat> image1;
     SLAM_variable<cv::Mat> image2;
     cv::Mat image3;
@@ -49,7 +50,10 @@ class message{
     SLAM_variable<int> n_matches;
 
     EigenMat4dMap poseGT;
-    EigenMat4dMap pose;
+    //EigenMat4dMap pose;
+    Trajectory traj;
+
+    SLAM_variable<Eigen::Matrix4d> current_pose;
 
     float fx, fy, cx, cy, bf, b;
 
