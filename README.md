@@ -27,4 +27,8 @@ This is a beta version and is under active development. Use it at your own risk.
 
 We hope you find i3D-SLAM useful and look forward to your contributions and feedback!
 
- 
+ ## Settings
+* Predicted depth monocular SLAM
+* Stereo SLAM 
+
+ ![Alt Text](samples/i3DSLAMv1.0.gif)
