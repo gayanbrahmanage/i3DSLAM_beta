@@ -31,4 +31,4 @@ We hope you find i3D-SLAM useful and look forward to your contributions and feed
 * Predicted depth monocular SLAM
 * Stereo SLAM 
 
- ![Alt Text](samples/i3DSLAMv1.0.gif)
+ ![Alt Text](i3DSLAM_beta/samples/i3DSLAMv1.0.gif)
